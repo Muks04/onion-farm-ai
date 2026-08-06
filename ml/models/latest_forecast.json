@@ -1,0 +1,52 @@
+{
+  "mandi": "Lasalgaon",
+  "generated_at": "2026-08-05T16:16:58.640410",
+  "last_actual_price": 3663,
+  "last_actual_date": "2026-07-28",
+  "forecast": [
+    {
+      "date": "2026-07-29",
+      "predicted_price": 3456,
+      "confidence_low": 3180,
+      "confidence_high": 3733
+    },
+    {
+      "date": "2026-07-30",
+      "predicted_price": 3485,
+      "confidence_low": 3207,
+      "confidence_high": 3764
+    },
+    {
+      "date": "2026-07-31",
+      "predicted_price": 3477,
+      "confidence_low": 3199,
+      "confidence_high": 3756
+    },
+    {
+      "date": "2026-08-01",
+      "predicted_price": 3477,
+      "confidence_low": 3199,
+      "confidence_high": 3756
+    },
+    {
+      "date": "2026-08-02",
+      "predicted_price": 3477,
+      "confidence_low": 3199,
+      "confidence_high": 3756
+    },
+    {
+      "date": "2026-08-03",
+      "predicted_price": 3477,
+      "confidence_low": 3199,
+      "confidence_high": 3756
+    },
+    {
+      "date": "2026-08-04",
+      "predicted_price": 3477,
+      "confidence_low": 3199,
+      "confidence_high": 3756
+    }
+  ],
+  "trend": "DOWN",
+  "recommendation": "SELL NOW \u2014 Price may drop to \u20b93456/q in next 7 days"
+}

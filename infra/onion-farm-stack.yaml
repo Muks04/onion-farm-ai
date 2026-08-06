@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Onion Farm Advisory Bot - WhatsApp-native for Indian Farmers
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+
+Resources:
+  FarmersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'onion-farmers-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: phone
+          AttributeType: S
+      KeySchema:
+        - AttributeName: phone
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  ChatHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'onion-chat-history-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: phone
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: phone
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'onion-farm-bot-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !GetAtt FarmersTable.Arn
+                  - !GetAtt ChatHistoryTable.Arn
+        - PolicyName: BedrockAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: '*'
+
+  OnionBotFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'onion-farm-bot-${Environment}'
+      Runtime: python3.12
+      Handler: onion_orchestrator.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Timeout: 60
+      MemorySize: 256
+      Code:
+        S3Bucket: legal-ai-judgments-008714537357
+        S3Key: 'lambda-code/onion-farm-bot.zip'
+      Environment:
+        Variables:
+          FARMERS_TABLE: !Ref FarmersTable
+          CHAT_HISTORY_TABLE: !Ref ChatHistoryTable
+          ENVIRONMENT: !Ref Environment
+          TWILIO_ACCOUNT_SID: PLACEHOLDER_SET_VIA_ENV
+          TWILIO_AUTH_TOKEN: PLACEHOLDER_SET_VIA_ENV
+          TWILIO_WHATSAPP_NUMBER: '+14155238886'
+          OPENWEATHER_API_KEY: ''
+
+Outputs:
+  FunctionArn:
+    Value: !GetAtt OnionBotFunction.Arn
+  FunctionName:
+    Value: !Ref OnionBotFunction
